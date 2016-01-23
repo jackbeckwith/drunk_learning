@@ -58,28 +58,32 @@ print accuracy
 class DrunkLearning(object):
     """drunk_learning class"""
     def __init__(self):
-        self.clf = LogisticRegression()
+        self.clf = Perceptron()
         self.filename = 'modelLogReg.pkl'
 
-    def predict(self, X):
-        ret = self.clf.predict(X)
-        return str(ret[0])
-
     def fit(self, X, y):
+    	X = np.array([X])
+        y = np.array(y)
         self.clf.fit(X, y)
         joblib.dump(self.clf, self.filename, compress=9)
+
+    def partial_fit(self, X, y):
+        X = np.array([X])
+        y = np.array(y)
+        self.clf.partial_fit(X, y, [0, 1])
+        joblib.dump(self.clf, self.filename, compress=9)
+
+    def predict(self, X):
+    	X = np.array([X])
+        ret = self.clf.predict(X)
+        return str(ret[0])
 
 class DrunkLearningSVM(DrunkLearning):
     """drunk_learning class"""
     def __init__(self):
         super(DrunkLearningSVM, self).__init__()
-        self.clf = LogisticRegression()
+        self.clf = SGDClassifier(loss="hinge", penalty="l2")
         self.filename = 'modelSVM.pkl'
-
-    def gridSearch(self, X, y):
-        tuned_parameters = [{'kernel': ['poly'], 'degree': [2, 3],
-                            'C': [1500, 2000, 3000]}]
-        self.clf = GridSearchCV(SVM(C=1, kernel='poly'), tuned_parameters, cv=10)
 
 class DrunkLearningNB(DrunkLearning):
     """drunk_learning class"""
@@ -88,9 +92,10 @@ class DrunkLearningNB(DrunkLearning):
         self.clf = GaussianNB()
         self.filename = 'modelNB.pkl'
 
-    def partial_fit(self, X, y):
-        X = np.array([X])
-        y = np.array(y)
-        self.clf.partial_fit(X, y, [0, 1])
-        joblib.dump(self.clf, self.filename, compress=9)
+class DrunkLearningNB(DrunkLearning):
+    """drunk_learning class"""
+    def __init__(self):
+        super(DrunkLearningPassiveAggressive, self).__init__()
+        self.clf = PassiveAggressiveClassifier(loss='hinge', C=1.0))
+        self.filename = 'modelPassiveAggressive.pkl'
 
